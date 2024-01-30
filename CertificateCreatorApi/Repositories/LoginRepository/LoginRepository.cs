@@ -27,7 +27,7 @@ namespace CertificateCreatorApi.Repositories.LoginRepository
                     parameters.Add("@UserName", loginEntity.UserName, DbType.String);
                     parameters.Add("@Password", loginEntity.Password, DbType.String);
                     parameters.Add("@Email", loginEntity.Email, DbType.String);
-                    parameters.Add("@UserTypeId", 0, DbType.Int32);
+                    parameters.Add("@UserTypeId", 1, DbType.Int32);
                     parameters.Add("@EmailVerified", false, DbType.Boolean);
                     parameters.Add("@CreationDate", DateTime.Now, DbType.DateTime);
                     parameters.Add("@ModificationDate", DateTime.Now, DbType.DateTime);
@@ -48,6 +48,7 @@ namespace CertificateCreatorApi.Repositories.LoginRepository
                 throw;
             }
         }
+
 
         public async Task<int> CreateOtp(UserOTP otp)
         {

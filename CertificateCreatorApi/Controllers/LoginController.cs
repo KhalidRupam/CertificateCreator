@@ -105,13 +105,17 @@ namespace CertificateCreatorApi.Controllers
                     return BadRequest();
                 }
                 var res = await _loginRepository.GetLoginByEmailId(entity.Email);
-                if (res == null)
+                if (res.loginEntity == null)
                 {
                     return StatusCode(500, "User Not found");
                 }
-                res.token = GenerateJwtToken(res.loginEntity);
+                if (res.loginEntity.Password==entity.Password)
+                {
+                    res.token = GenerateJwtToken(res.loginEntity);
 
-                return Ok(res.token);
+                    return Ok(res.token);
+                }
+                return StatusCode(500, "Password mismatch");
             }
             catch (Exception ex) { return StatusCode(500, "An error occurred while inserting the user."); }
         }
@@ -126,6 +130,15 @@ namespace CertificateCreatorApi.Controllers
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 
                 };
+            if (login.UserTypeId==2)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            }
+            else
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, "User"));
+            }
+          
 
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
             var token = new JwtSecurityToken(

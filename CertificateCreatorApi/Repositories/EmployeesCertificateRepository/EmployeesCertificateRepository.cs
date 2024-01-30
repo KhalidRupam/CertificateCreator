@@ -36,6 +36,28 @@ namespace CertificateCreatorApi.Repositories.EmployeesCertificateRepository
             }
         }
 
+        public async Task<int> UpdateEmployeesCertificate(EmployeesCertificate employeesCertificate)
+        {
+            try
+            {
+                using (IDbConnection _dbConnection = new SqlConnection(_connectionString))
+                {
+                    DynamicParameters parameters = new();
+                    parameters.Add("@EmployeeId", employeesCertificate.EmployeeId, DbType.Int32);
+                    parameters.Add("@CertificateId", employeesCertificate.CertificateId, DbType.Int32);
+                    parameters.Add("@PDFUrl", employeesCertificate.PDFUrl, DbType.String);
+
+                    var results = await _dbConnection.ExecuteAsync("[dbo].[SP_UpdateEmployeesCertificates]", parameters, commandType: CommandType.StoredProcedure);
+                    return results;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<List<EmployeesCertificatesWithDetails>> GetAllEmployeesCertificates()
         {
             try
@@ -43,6 +65,24 @@ namespace CertificateCreatorApi.Repositories.EmployeesCertificateRepository
                 using (IDbConnection _dbConnection = new SqlConnection(_connectionString))
                 {
                     var results = await _dbConnection.QueryAsync<EmployeesCertificatesWithDetails>("[dbo].[SP_GetAllEmployeesCertificates]", commandType: CommandType.StoredProcedure);
+                    return results.ToList();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<List<EmployeesCertificatesWithDetails>> GetAllEmployeesCertificatesByEmployeeId(string creatorId)
+        {
+            try
+            {
+                using (IDbConnection _dbConnection = new SqlConnection(_connectionString))
+                {
+                    DynamicParameters parameters = new();
+                    parameters.Add("@creatorId", creatorId, DbType.String);
+                    var results = await _dbConnection.QueryAsync<EmployeesCertificatesWithDetails>("[dbo].[SP_GetAllEmployeesCertificatesByEmployeeId]", parameters, commandType: CommandType.StoredProcedure);
                     return results.ToList();
                 }
             }

@@ -1,11 +1,15 @@
 ﻿@model CertificateCreator.Models.CertificateCreationViewModel
+<div class="mt-2">
+    <a asp-controller="Home" asp-action="Index"
+       class="btn btn-sm btn-danger rounded-0">Log Out</a>
+</div>
 <div class="container mt-5">
     <div class="row">
         <div class="col-12">
             <h3 class="text-center">Welcome to certificate creator</h3>
         </div>
         <div class="col-12 d-flex justify-content-end">
-            <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Create New Certificate</button>
+            <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#exampleModal" id="createCert">Create New Certificate</button>
         </div>
         <div class="col-12 mt-3">
             <table class="table table-hover" id="myTable">
@@ -17,11 +21,11 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
 
-                    @if (Model.EmployeesCertificatesWithDetails.Count() > 0)
-                    {
-                        foreach (var item in Model.EmployeesCertificatesWithDetails)
+                @if (Model.EmployeesCertificatesWithDetails.Count() > 0)
+                {
+                    <tbody>
+                        @foreach (var item in Model.EmployeesCertificatesWithDetails)
                         {
                             <tr>
                                 @{
@@ -30,27 +34,39 @@
                                     <td>@item.CertificateName</td>
                                     <td><a href=@url download>Dowload</a></td>
                                     <td>
-                                        <a asp-controller="Dashboard" asp-action="Details" asp-route-employeeName="@item.EmployeeName" asp-route-departmentName="@item.DepartMentName"
-                                           asp-route-certificateTypeID="@item.CertificateId"
-                                           class="btn btn-sm btn-primary rounded-0">View Certificate</a>
+                                        @if (ViewBag.Role=="Admin")
+                                        {
+                                            <a asp-controller="Dashboard" asp-action="Details" asp-route-employeeName="@item.EmployeeName" asp-route-departmentName="@item.DepartMentName"
+                                               asp-route-certificateTypeID="@item.CertificateId"
+                                               class="btn btn-sm btn-primary rounded-0">View Certificate</a>
+                                        }
+                                        <a class="btn btn-sm  btn-secondary editCert"
+                                           data-employee-id="@item.EmployeeId" data-certificate-id="@item.CertificateId" data-pdf="@item.PDFUrl" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                            Edit
+                                        </a>
+
                                         <a asp-controller="Dashboard" asp-action="Delete"
-                                           asp-route-certificateId="@item.Id"
+                                           asp-route-certificateId="@item.Id" 
                                            class="btn btn-sm btn-danger rounded-0">Delete</a>
                                     </td>
                                 }
 
                             </tr>
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="4">No Data Found</td>
-                        </tr>
-                    }
+                    </tbody>
+                }
+                else
+                {
+                    <tr>
+                        <td >No Data Found</td>
+                        <td ></td>
+                        <td ></td>
+                        <td ></td>
+                    </tr>
+                }
 
 
-                </tbody>
+
             </table>
         </div>
     </div>
@@ -60,7 +76,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Create New Certificate</h5>
+                <h5 class="modal-title modal-title-dynamic" id="exampleModalLabel"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -77,8 +93,12 @@
                     </div>
                     <div>
                         @Html.Label("additionalFile", "Upload Additional File:")
-                        @Html.TextBox("file", "", new { type = "file", @class = "form-control mt-2", @required = "required" }) <br />
+                        @Html.TextBox("file", "", new { type = "file", @class = "form-control mt-2 fileInput" }) <br />
+                        <a download id="pdfUrl" name="pdfUrl" hidden>Dowload</a>
                     </div>
+                    <input type="text" hidden id="type" name="type" />
+                    <input type="text" hidden id="pdfurl" name="pdfurl" />
+                    <input type="text" hidden id="selectedEmployeeId" name="selectedEmployeeId" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -98,7 +118,36 @@
     <script>
         $(document).ready(function () {
             $("#myTable").DataTable();
+            $(".editCert").click(function () {
 
+                var EmployeeId = $(this).data('employee-id');
+                var CertificateId = $(this).data('certificate-id');
+                var PdfUrl = $(this).data('pdf');
+
+                $("#type").val("Update")
+                var url = "https://localhost:7197/api/File/" + PdfUrl;
+                $("#employeeId").val(EmployeeId);
+                $("#certificateId").val(CertificateId);
+                $("#employeeId").prop("disabled", true);
+                $("#pdfUrl").attr("href", url);
+                $("#pdfUrl").prop("hidden", false);
+                $(".modal-title-dynamic").html("Update Certificate");
+                $(".fileInput").prop("required", false);
+                $("#pdfurl").val(PdfUrl);
+                $("#selectedEmployeeId").val(EmployeeId);
+            })
+            $("#createCert").click(function () {
+
+                $("#type").val("Insert")
+                $("#employeeId").val("");
+                $("#certificateId").val("");
+                $("#PDFUrl").val("");
+                $("#employeeId").prop("disabled", false);
+                $("#pdfUrl").prop("hidden", true);
+                $(".modal-title-dynamic").html("Create Certificate");
+                $(".fileInput").prop("required", true);
+                $("#selectedEmployeeId").val("");
+            })
         });
     </script>
 }

@@ -54,15 +54,8 @@ namespace CertificateCreator.Services.LoginService
                 var url = ApiUsers + "/CheckLogin";
                 var responseMessage = await _httpClient.PostAsJsonAsync(url, user);
 
-                if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    var res = await responseMessage.Content.ReadAsStringAsync();
-                    return res;
-                }
-                else
-                {
-                    return "";
-                }
+                var res = await responseMessage.Content.ReadAsStringAsync();
+                return res;
 
             }
             catch (Exception ex)

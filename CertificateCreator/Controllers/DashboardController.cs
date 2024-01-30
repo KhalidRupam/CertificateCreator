@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace CertificateCreator.Controllers
 {
@@ -35,18 +36,42 @@ namespace CertificateCreator.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(int employeeId, int certificateId, IFormFile file)
+        public async Task<IActionResult> Index(int employeeId, int certificateId, IFormFile file,string type,string pdfurl,int selectedEmployeeId)
         {
-
-            var ress = await _fileService.SaveFileToApi(file);
-
             var TokenResponse = HttpContext.Session.GetString("token");
             var handler = new JwtSecurityTokenHandler();
             var jsonToken = handler.ReadToken(TokenResponse);
             var tokenS = jsonToken as JwtSecurityToken;
             var UserId = tokenS.Claims.First(claim => claim.Type == "UserId").Value;
 
-            var r = await _employeesCertificate.insertEmployeesCertificate(new EmployeesCertificate() { CertificateId = certificateId, EmployeeId = employeeId, PDFUrl = ress, CreatedBy = UserId, CreationDate = DateTime.Now, Id = 0, ModificationDate = DateTime.Now });
+            var obj = new EmployeesCertificate() { CertificateId = certificateId, EmployeeId = employeeId, PDFUrl = "", CreatedBy = UserId, CreationDate = DateTime.Now, Id = 0, ModificationDate = DateTime.Now };
+
+            if (type=="Insert")
+            {
+                var ress = await _fileService.SaveFileToApi(file);
+                obj.PDFUrl = ress;
+                var r = await _employeesCertificate.insertEmployeesCertificate(obj);
+                _toastNotification.AddSuccessToastMessage(r);
+            }
+            else
+            {
+                var ress = "";
+                if (file !=null)
+                {
+                    ress = await _fileService.SaveFileToApi(file);
+                }
+                else
+                {
+                    ress= pdfurl;
+                }
+
+                obj.EmployeeId = selectedEmployeeId;
+                obj.PDFUrl = ress;
+
+                var r = await _employeesCertificate.updateEmployeesCertificate(obj);
+                _toastNotification.AddSuccessToastMessage(r);
+            }
+            
 
             var res = await LoadData();
             return View(res);
@@ -72,14 +97,29 @@ namespace CertificateCreator.Controllers
 
         public async Task<CertificateCreationViewModel> LoadData()
         {
+            var TokenResponse = HttpContext.Session.GetString("token");
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(TokenResponse);
+            var tokenS = jsonToken as JwtSecurityToken;
+            var UserId = tokenS.Claims.First(claim => claim.Type == "UserId").Value;
+            var roleClaim = tokenS.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+
+            ViewBag.Role=roleClaim.Value;   
+
             var res = await _employeeService.GetAllEmployeeDetails();
             var cer = await _certificateTypeService.GetAllCertificateTypes();
-            var employeeWithDetails = await _employeesCertificate.GetAllEmployeesCertificates();
 
             CertificateCreationViewModel certificateCreationViewModel = new();
             certificateCreationViewModel.employees = res;
             certificateCreationViewModel.certificateTypes = cer;
-            certificateCreationViewModel.EmployeesCertificatesWithDetails = employeeWithDetails;
+            if (roleClaim.Value == "Admin")
+            {
+                certificateCreationViewModel.EmployeesCertificatesWithDetails = await _employeesCertificate.GetAllEmployeesCertificates();
+            }
+            else
+            {
+                certificateCreationViewModel.EmployeesCertificatesWithDetails = await _employeesCertificate.GetAllEmployeesCertificatesByEmployeeId(UserId);
+            }
             return certificateCreationViewModel;
         }
     }

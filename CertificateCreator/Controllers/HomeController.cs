@@ -22,6 +22,7 @@ namespace CertificateCreator.Controllers
 
         public IActionResult Index()
         {
+            HttpContext.Session.Clear();
             return View();
         }
         [HttpPost]
@@ -31,26 +32,36 @@ namespace CertificateCreator.Controllers
             if (loginDto.Email != null && loginDto.Password != null)
             {
                 var res = await _loginService.checkLogin(loginDto);
-                if (string.IsNullOrEmpty(res))
+                if (res== "User Not found")
                 {
                     ViewBag.UserNotFound = true;
                     _toastNotification.AddErrorToastMessage("User Not Found");
                     return View();
                 }
-                var handler = new JwtSecurityTokenHandler(); 
-                var jsonToken = handler.ReadToken(res);
-                var tokenS = jsonToken as JwtSecurityToken;
-                var emailVerified = tokenS.Claims.First(claim => claim.Type == "EmailVerified").Value;
-                HttpContext.Session.SetString("token", res);
-                if (emailVerified.Equals("false",StringComparison.OrdinalIgnoreCase))
+                else if (res == "Password mismatch")
                 {
-                    return RedirectToAction("OTPPage", res);
+                    ViewBag.UserNotFound = true;
+                    _toastNotification.AddErrorToastMessage("Password mismatch");
+                    return View();
                 }
                 else
                 {
-                    _toastNotification.AddSuccessToastMessage("Login successfully");
-                    return RedirectToAction("Index", "Dashboard");
+                    var handler = new JwtSecurityTokenHandler();
+                    var jsonToken = handler.ReadToken(res);
+                    var tokenS = jsonToken as JwtSecurityToken;
+                    var emailVerified = tokenS.Claims.First(claim => claim.Type == "EmailVerified").Value;
+                    HttpContext.Session.SetString("token", res);
+                    if (emailVerified.Equals("false", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return RedirectToAction("OTPPage", loginDto);
+                    }
+                    else
+                    {
+                        _toastNotification.AddSuccessToastMessage("Login successfully");
+                        return RedirectToAction("Index", "Dashboard");
+                    }
                 }
+                
             }
             return View();
         }
