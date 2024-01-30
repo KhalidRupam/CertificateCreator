@@ -1,0 +1,42 @@
+﻿@model CertificateCreator.Models.LoginEntity
+
+
+
+<div class="container" style="height:100vh">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-md-4 col-0">
+        </div>
+        <div class="col-md-4 col-12">
+            <div class="card p-5">
+                <form asp-action="Index">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <h2 class="text-center">Login</h2>
+                    <div class="form-group mt-3">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" class="form-control" type="password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mt-3 text-center w-100 ">
+                        <input type="submit" value="Login" class="btn btn-primary w-100" />
+                    </div>
+                    <div class="d-flex justify-content-between mt-3 flex-wrap">
+                        <p>Don't Have an account?</p>
+                        <a asp-action="UserRegistration" class="text-center">Register Now</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4 col-0">
+        </div>
+    </div>
+</div>
+
+<a href="https://localhost:7197/api/File/a0abd959-81e8-4af9-a11e-c6a1832460e6.pdf" download>Dowload</a>
+

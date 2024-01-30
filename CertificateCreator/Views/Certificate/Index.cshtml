@@ -1,0 +1,131 @@
+﻿@model CertificateCreator.Models.EmployeesCertificatesWithDetails
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            text-align: left;
+            margin: 20px;
+        }
+
+        .letter {
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            font-size: 14px;
+            margin-top: 50px;
+        }
+
+        .signature {
+            margin-top: 20px;
+        }
+
+            .signature img {
+                width: 150px;
+                height: auto;
+            }
+    </style>
+</head>
+<body>
+    <div  class="d-flex justify-content-between NoPrint">
+        <a asp-controller="Dashboard" asp-action="Index"
+           class="btn btn-sm btn-outline-secondary NoPrint" >Back</a>
+        <button class="btn btn-outline-primary NoPrint" id="print">Print</button>
+    </div>
+    @{
+        if (@Model.CertificateId == 2)
+        {
+            <div class="letter">
+                <div class="header">Employment Verification Letter</div>
+                <div class="content">
+                    <p>Date: @DateTime.Now.ToString("dd-MMM-yyyy")</p>
+                    <p>To whom it may concern,</p>
+                    <p>
+                        This letter is to confirm that <strong>@Model.EmployeeName</strong> is
+                        currently employed by the  <strong>@Model.DepartMentName</strong>  at <strong>XYZ Company</strong> .
+                    </p>
+                    <p>
+                        If you have any further questions or require additional information,
+                        please feel free to contact us.
+                    </p>
+                </div>
+                <div class="footer">
+                    <p>Sincerely,</p>
+                    <div class="signature">
+                        <p>
+                            <strong>Khalid</strong>  <br />
+                            Admin <br />
+                            XYZ Company
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="letter">
+                <div class="header">No Objection Certificate</div>
+                <div class="content">
+                    <p>Date: @DateTime.Now.ToString("dd-MMM-yyyy")</p>
+                    <p>To whom it may concern,</p>
+                    <p>This is to certify that <strong>@Model.EmployeeName</strong> from the <strong>@Model.DepartMentName</strong> has no objection for the purpose of <strong>pursuing higher education at American International University (AIUB)</strong>.</p>
+                    <p>If you have any further questions, please feel free to contact us.</p>
+                </div>
+                <div class="footer">
+                    <p>Sincerely,</p>
+                    <div class="signature">
+                        <p>
+                            <strong>Khalid</strong>  <br />
+                            Admin <br />
+                            XYZ Company
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+
+
+</body>
+</html>
+
+@section Scripts
+    {
+    <script>
+        $(document).ready(function () {
+            $("#print").click(function () {
+                var noPrintElements = document.getElementsByClassName("NoPrint");
+                for (var i = 0; i < noPrintElements.length; i++) {
+                    noPrintElements[i].style.display = 'none';
+                }
+
+                window.print();
+
+                for (var i = 0; i < noPrintElements.length; i++) {
+                    noPrintElements[i].style.display = 'flex'; 
+                }
+            })
+        });
+    </script>
+    }
+

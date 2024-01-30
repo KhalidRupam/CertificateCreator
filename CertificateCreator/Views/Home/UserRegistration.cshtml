@@ -1,0 +1,46 @@
+﻿@model CertificateCreator.Models.LoginEntity
+
+
+<div class="container " style="height:100vh">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-md-4 col-0">
+
+        </div>
+        <div class="col-md-4 col-12">
+            <div class="card p-5">
+                <form asp-action="UserRegistration">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <h2 class="text-center">Register</h2>
+                    <div class="form-group mt-3">
+                        <label asp-for="UserName" class="control-label"></label>
+                        <input asp-for="UserName" class="form-control" placeholder="UserName" required/>
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" class="form-control" placeholder="Password" type="password" required />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" type="email" required placeholder="Email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mt-3 text-center w-100 ">
+                        <input type="submit" value="Register" class="btn btn-primary w-100" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4 col-0">
+        </div>
+    </div>
+  
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

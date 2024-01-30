@@ -1,0 +1,104 @@
+﻿@model CertificateCreator.Models.CertificateCreationViewModel
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h3 class="text-center">Welcome to certificate creator</h3>
+        </div>
+        <div class="col-12 d-flex justify-content-end">
+            <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Create New Certificate</button>
+        </div>
+        <div class="col-12 mt-3">
+            <table class="table table-hover" id="myTable">
+                <thead>
+                    <tr>
+                        <th>Employee Name</th>
+                        <th>Certificate Type</th>
+                        <th>Additional Documents</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (Model.EmployeesCertificatesWithDetails.Count() > 0)
+                    {
+                        foreach (var item in Model.EmployeesCertificatesWithDetails)
+                        {
+                            <tr>
+                                @{
+                                    var url = "https://localhost:7197/api/File/" + item.PDFUrl;
+                                    <td>@item.EmployeeName</td>
+                                    <td>@item.CertificateName</td>
+                                    <td><a href=@url download>Dowload</a></td>
+                                    <td>
+                                        <a asp-controller="Dashboard" asp-action="Details" asp-route-employeeName="@item.EmployeeName" asp-route-departmentName="@item.DepartMentName"
+                                           asp-route-certificateTypeID="@item.CertificateId"
+                                           class="btn btn-sm btn-primary rounded-0">View Certificate</a>
+                                        <a asp-controller="Dashboard" asp-action="Delete"
+                                           asp-route-certificateId="@item.Id"
+                                           class="btn btn-sm btn-danger rounded-0">Delete</a>
+                                    </td>
+                                }
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">No Data Found</td>
+                        </tr>
+                    }
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create New Certificate</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            @using (Html.BeginForm("Index", "Dashboard", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="modal-body">
+                    <div>
+                        @Html.Label("employeeSelect", "Select an Employee:")
+                        @Html.DropDownList("employeeId", new SelectList(Model.employees, "Id", "Name"), "Select an option", new { @class = "form-control mt-2", @required = "required" })
+                    </div>
+                    <div>
+                        @Html.Label("certificateSelect", "Select a Certificate Type:")
+                        @Html.DropDownList("certificateId", new SelectList(Model.certificateTypes, "Id", "Name"), "Select an option", new { @class = "form-control mt-2", @required = "required" })
+                    </div>
+                    <div>
+                        @Html.Label("additionalFile", "Upload Additional File:")
+                        @Html.TextBox("file", "", new { type = "file", @class = "form-control mt-2", @required = "required" }) <br />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            }
+
+
+        </div>
+    </div>
+</div>
+
+@section Scripts
+    {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css" />
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#myTable").DataTable();
+
+        });
+    </script>
+}
